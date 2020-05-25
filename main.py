@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 
+
 def getHTMLText(url, code="utf-8", timeout=30):
     try:
         r = requests.get(url, timeout=timeout)
@@ -14,11 +15,11 @@ def getHTMLText(url, code="utf-8", timeout=30):
 
 
 def processTDLeft(tdObject):
-    '''
+    """
     turn TDLeft's value into infoDict's Key
     :param tdObject:
     :return:formatted text
-    '''
+    """
     text = tdObject.text.replace(": ", "")
     refDict = {
         "名称": "name",
@@ -35,17 +36,24 @@ def processTDLeft(tdObject):
     else:
         return None
 
+
 def processTDRight(tdObject):
-    text = tdObject.text.strip()
+    alist = tdObject.find_all('a')
+    if alist:
+        text = "，".join([a.text.strip() for a in alist])
+    else:
+        text = tdObject.text.strip()
+    # print(text)
     return text
 
+
 def processKeyValue(key, value):
-    '''
+    """
     process certain key's value
     :param key:
     :param value:
     :return:formatted key and value
-    '''
+    """
     if key == "size":
         value = value[2:]
         return key, value
@@ -53,6 +61,7 @@ def processKeyValue(key, value):
         value = value.replace(",", "")[:value.find("日元") + 1]
         return key, value
     return key, value
+
 
 def getPVCInfo(url):
     infoDict = {
@@ -84,11 +93,11 @@ def getPVCInfo(url):
         else:
             continue
         if key is not None and value is not None:
-            # print(key,value)
             key, value = processKeyValue(key, value)
             infoDict[key] = value
     out = formResult(infoDict)
     return out
+
 
 def formResult(infoDict):
     result = f'''{{{{周边头部}}}}
@@ -113,6 +122,7 @@ def formResult(infoDict):
 {{{{#vardefine:图片名|{{{{去杠|{{{{FULLPAGENAME}}}}}}}}}}}}'''
 
     return result
+
 
 # url for test
 # url = "https://www.hpoi.net/hobby/38120"
